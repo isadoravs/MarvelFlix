@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Netflix</string>
+    <string name="cast">Elenco: %1$s</string>
+    <string name="similar">Opções semelhantes</string>
+    <string name="books_error_401">Não autorizado</string>
+    <string name="books_error_400_generic">Erro não tratado</string>
+    <string name="books_error_500_generic">Erro catastrófico</string>
+</resources>
