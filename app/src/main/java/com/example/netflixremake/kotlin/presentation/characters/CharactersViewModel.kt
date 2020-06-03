@@ -15,9 +15,10 @@ class CharactersViewModel : ViewModel() {
 
     var characterList: Observable<PagedList<CharacterSeries>>
 
+    /* envia um composite disposable ao CharacterDataSource para poder descartá-lo */
     private val compositeDisposable = CompositeDisposable()
 
-    private val pageSize = 10
+    private val pageSize = 10 //número de itens por página
 
     private val sourceFactory: CharactersDataSourceFactory
 
@@ -28,7 +29,7 @@ class CharactersViewModel : ViewModel() {
                 .setPageSize(pageSize)
                 .setInitialLoadSizeHint(pageSize * 2)
                 .setPrefetchDistance(10)
-                .setEnablePlaceholders(false)
+                .setEnablePlaceholders(true)
                 .build()
 
         characterList = RxPagedListBuilder(sourceFactory, config)

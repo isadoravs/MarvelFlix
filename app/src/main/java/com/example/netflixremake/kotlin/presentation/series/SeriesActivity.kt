@@ -51,6 +51,8 @@ class SeriesActivity : AppCompatActivity() {
             recycler_view_similar.adapter = adapter
             recycler_view_similar.layoutManager = GridLayoutManager(this, 3)
 
+
+            /* Carrega a imagem do filme no início da tela */
             Glide.with(this@SeriesActivity)
                     .load(movieDetail.thumbnail.path + "/landscape_xlarge." + series.thumbnail.extension)
                     .listener(object : RequestListener<Drawable> {
@@ -72,7 +74,7 @@ class SeriesActivity : AppCompatActivity() {
 
         }
     }
-
+    /* Envia os resultados da requisiçao para o adapter da RecyclerView */
     private fun loadCharacters(collectionURI: String){
         val disposable = viewModel.loadCharacters(collectionURI)
                 .subscribeOn(Schedulers.io())
@@ -82,6 +84,7 @@ class SeriesActivity : AppCompatActivity() {
                 }, {error -> println(error)})
     }
 
+    /* botão de voltar no menu */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> finish()

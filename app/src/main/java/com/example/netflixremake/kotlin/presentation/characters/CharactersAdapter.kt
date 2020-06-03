@@ -34,8 +34,8 @@ class CharactersAdapter(val listener: ((Series) -> Unit)?) : PagedListAdapter<Ch
         fun bind(characterSeries: CharacterSeries) {
             with(itemView) {
                 text_view_title.text = characterSeries.character.name
-                recycler_view_movie.adapter = SeriesByCharacterAdapter(characterSeries.series) { serie ->
-                    listener?.invoke(serie)
+                recycler_view_movie.adapter = SeriesByCharacterAdapter(characterSeries.series) { series ->
+                    listener?.invoke(series)
                 }
                 recycler_view_movie.layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
             }
@@ -48,7 +48,6 @@ class CharactersAdapter(val listener: ((Series) -> Unit)?) : PagedListAdapter<Ch
                 return old.character.id == new.character.id
             }
 
-            @SuppressLint("DiffUtilEquals")
             override fun areContentsTheSame(old: CharacterSeries, new: CharacterSeries): Boolean {
                 return old == new
             }

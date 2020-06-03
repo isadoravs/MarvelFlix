@@ -21,17 +21,18 @@ class CharactersDataSource(
     private var characterSeries: MutableList<CharacterSeries> = arrayListOf()
     private var seriesURICache: MutableMap<String, List<Series>> = mutableMapOf()
 
+    /* Método chamado no carregamento da primeira página */
     override fun loadInitial(params: LoadInitialParams<Int>, callback: LoadInitialCallback<Int, CharacterSeries>) {
         val numberOfItems = params.requestedLoadSize
         createObservable(0, 1, numberOfItems, callback, null)
     }
-
+    /* Método chamado nas páginas subsequentes */
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, CharacterSeries>) {
         val page = params.key
         val numberOfItems = params.requestedLoadSize
         createObservable(page, page + 1, numberOfItems, null, callback)
     }
-
+    /* Método chamado na última página */
     override fun loadBefore(params: LoadParams<Int>, callback: LoadCallback<Int, CharacterSeries>) {
         val page = params.key
         val numberOfItems = params.requestedLoadSize
@@ -46,12 +47,19 @@ class CharactersDataSource(
 
 
         compositeDisposable.add(
+                /*
+                *  Busca todos os personagens paginados de 10 em 10 itens (número de itens configurado em CharactersViewModel)
+                *  Cada personagem possui um objeto Series
+                *  O objeto Series possui uma URI que retorna uma lista de séries que o personagem participou
+                *  O método zip une o resultado da requisição de busca dos personagens com a busca de suas respectivas Series
+                */
+
                 marvelApi.allCharacters(requestedPage * requestedLoadSize)
                         .flatMap { charactersResult -> Observable.fromIterable(charactersResult.data.results) }
                         .flatMap { character ->
                             Observable.zip(
                                     Observable.just(CharacterSeries(character, ArrayList())),
-                                    getFirst(character),
+                                    getFirst(character.series.collectionURI),
                                     BiFunction<CharacterSeries, List<Series>, CharacterSeries> { characterSeries, series ->
                                         characterSeries.series.addAll(series)
                                         characterSeries
@@ -59,7 +67,6 @@ class CharactersDataSource(
                         }.subscribe(
                                 { (character, series) ->
                                     characterSeries.add(CharacterSeries(character, series))
-                                   // Log.d("NGVL", "Loading page: $requestedPage")
                                     initialCallback?.onResult(characterSeries, null, adjacentPage)
                                     callback?.onResult(characterSeries, adjacentPage)
                                 },
@@ -70,14 +77,16 @@ class CharactersDataSource(
         )
     }
 
-    private fun getFirst(character: Character): Observable<List<Series>>{
+    /* Pega o primeiro observable disponível, ou em cache ou da requisição */
+    private fun getFirst(seriesURI: String): Observable<List<Series>>{
         return Observable.concat(
-                getCache(character.series.collectionURI),
-                marvelApi.allSeries(character.series.collectionURI).map { s -> s.data.results }
-                        .doOnNext { series -> seriesURICache[character.series.collectionURI] = series }
+                getCache(seriesURI),
+                marvelApi.allSeries(seriesURI).map { s -> s.data.results }
+                        .doOnNext { series -> seriesURICache[seriesURI] = series }
         ).first(emptyList()).toObservable()
     }
 
+    /* Verifica se a informação está em cache e retorna se tiver */
     private fun getCache(seriesURI: String): Observable<List<Series>>? {
         return Observable.fromIterable(seriesURICache.keys)
                 .filter { key ->

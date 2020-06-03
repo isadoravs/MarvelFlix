@@ -8,6 +8,5 @@ import io.reactivex.Observable
 class SeriesViewModel() : ViewModel() {
     fun loadCharacters(characterURI: String): Observable<List<Character>> {
         return MarvelApi.getService().allCharactersBySeries(characterURI).map { character -> character.data.results }
-
     }
 }

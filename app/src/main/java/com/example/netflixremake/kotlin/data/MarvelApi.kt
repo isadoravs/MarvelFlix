@@ -36,11 +36,15 @@ interface MarvelApi {
 
     companion object {
         fun getService(): MarvelApi {
+            /*
             val logging = HttpLoggingInterceptor()
             logging.level = HttpLoggingInterceptor.Level.BODY
+            */
 
             val httpClient = OkHttpClient.Builder()
-            httpClient.addInterceptor(logging)
+            //httpClient.addInterceptor(logging)
+
+            /* Adiciona interceptor para colocar as chaves da api, timestamp e hash em todas as requisiçoes */
             httpClient.addInterceptor { chain ->
                 val original = chain.request()
                 val originalHttpUrl = original.url()

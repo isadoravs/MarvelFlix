@@ -35,8 +35,7 @@ class CharactersActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val llm = LinearLayoutManager(this)
-        recycler_view_main.layoutManager = llm
+        recycler_view_main.layoutManager = LinearLayoutManager(this)
         recycler_view_main.adapter = adapter
         subscribeToList()
     }
@@ -51,6 +50,7 @@ class CharactersActivity : AppCompatActivity() {
         recyclerState = savedInstanceState?.getParcelable("lmState")
     }
 
+    /* Submete os resultados da requisicao no adapter da PagedList e controla a progressbar */
     private fun subscribeToList() {
         val disposable = viewModel.characterList
                 .observeOn(AndroidSchedulers.mainThread())
