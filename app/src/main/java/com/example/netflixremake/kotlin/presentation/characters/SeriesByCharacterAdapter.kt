@@ -22,7 +22,7 @@ class SeriesByCharacterAdapter(private val series: ArrayList<Series>, private va
     inner class SeriesHolder(itemView: View, private val onClick: ((Series) -> Unit)?) : RecyclerView.ViewHolder(itemView) {
         fun bind(series: Series) {
             with(itemView) {
-                Glide.with(context).load(series.thumbnail.path+"/portrait_small."+ series.thumbnail.extension).placeholder(R.drawable.placaholder_bg).into(image_view_cover)
+                Glide.with(context).load(series.thumbnail.path + "/portrait_medium." + series.thumbnail.extension).placeholder(R.drawable.placaholder_bg).into(image_view_cover)
                 image_view_cover.setOnClickListener {
                     onClick?.invoke(series)
                 }

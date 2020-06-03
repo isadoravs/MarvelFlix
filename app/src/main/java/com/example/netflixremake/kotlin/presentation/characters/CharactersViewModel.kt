@@ -4,11 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.paging.PagedList
 import androidx.paging.RxPagedListBuilder
 
-import com.example.netflixremake.kotlin.data.repository.CharactersDataSource
+import com.example.netflixremake.kotlin.data.paging.CharactersDataSourceFactory
 
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import com.example.netflixremake.kotlin.data.model.Character
 import com.example.netflixremake.kotlin.data.response.CharacterSeries
 import io.reactivex.Observable
 
@@ -20,10 +19,10 @@ class CharactersViewModel : ViewModel() {
 
     private val pageSize = 10
 
-    private val sourceFactory: CharactersDataSource.CharactersDataSourceFactory
+    private val sourceFactory: CharactersDataSourceFactory
 
     init {
-        sourceFactory = CharactersDataSource.CharactersDataSourceFactory(compositeDisposable, MarvelApi.getService())
+        sourceFactory = CharactersDataSourceFactory(compositeDisposable, MarvelApi.getService())
 
         val config = PagedList.Config.Builder()
                 .setPageSize(pageSize)
@@ -36,6 +35,7 @@ class CharactersViewModel : ViewModel() {
                 .setFetchScheduler(Schedulers.io())
                 .buildObservable()
                 .cache()
+
     }
 
     override fun onCleared() {

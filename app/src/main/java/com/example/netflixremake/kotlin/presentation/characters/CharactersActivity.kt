@@ -5,15 +5,14 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.os.PersistableBundle
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.netflixremake.R
-import com.example.netflixremake.kotlin.presentation.movieDetails.MovieDetailsActivity
 import com.example.netflixremake.kotlin.presentation.series.SeriesActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_main.*
-import java.io.Serializable
 
 
 class CharactersActivity : AppCompatActivity() {
@@ -23,7 +22,7 @@ class CharactersActivity : AppCompatActivity() {
     }
 
     private val adapter: CharactersAdapter by lazy {
-        CharactersAdapter(){
+        CharactersAdapter() {
             val intent = Intent(this@CharactersActivity, SeriesActivity::class.java)
             intent.putExtra("series", it)
             startActivity(intent)
@@ -54,7 +53,8 @@ class CharactersActivity : AppCompatActivity() {
 
     private fun subscribeToList() {
         val disposable = viewModel.characterList
-               .observeOn(AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe { progress_bar_main.visibility = View.VISIBLE }
                 .subscribe(
                         { list ->
                             adapter.submitList(list)
@@ -62,6 +62,7 @@ class CharactersActivity : AppCompatActivity() {
                                 recycler_view_main.layoutManager?.onRestoreInstanceState(recyclerState)
                                 recyclerState = null
                             }
+                            progress_bar_main.visibility = View.GONE
                         },
                         { e ->
                             Log.e("NGVL", "Error", e)

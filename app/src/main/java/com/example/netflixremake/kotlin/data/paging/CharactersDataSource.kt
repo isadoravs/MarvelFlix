@@ -1,12 +1,14 @@
-package com.example.netflixremake.kotlin.data.repository
+package com.example.netflixremake.kotlin.data.paging
 
 import MarvelApi
 import android.util.Log
 import androidx.paging.DataSource
 import androidx.paging.PageKeyedDataSource
+import com.example.netflixremake.kotlin.data.model.Character
 import com.example.netflixremake.kotlin.data.model.Series
 import com.example.netflixremake.kotlin.data.response.CharacterSeries
 import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
 import kotlin.collections.ArrayList
@@ -17,10 +19,12 @@ class CharactersDataSource(
         private val compositeDisposable: CompositeDisposable
 ) : PageKeyedDataSource<Int, CharacterSeries>() {
     private var characterSeries: MutableList<CharacterSeries> = arrayListOf()
+    private var seriesURICache: MutableMap<String, List<Series>> = mutableMapOf()
 
     override fun loadInitial(params: LoadInitialParams<Int>, callback: LoadInitialCallback<Int, CharacterSeries>) {
         val numberOfItems = params.requestedLoadSize
-        createObservable(0, 1, numberOfItems, callback, null)    }
+        createObservable(0, 1, numberOfItems, callback, null)
+    }
 
     override fun loadAfter(params: LoadParams<Int>, callback: LoadCallback<Int, CharacterSeries>) {
         val page = params.key
@@ -47,7 +51,7 @@ class CharactersDataSource(
                         .flatMap { character ->
                             Observable.zip(
                                     Observable.just(CharacterSeries(character, ArrayList())),
-                                    marvelApi.allSeries(character.series.collectionURI).map { s -> s.data.results },
+                                    getFirst(character),
                                     BiFunction<CharacterSeries, List<Series>, CharacterSeries> { characterSeries, series ->
                                         characterSeries.series.addAll(series)
                                         characterSeries
@@ -55,7 +59,7 @@ class CharactersDataSource(
                         }.subscribe(
                                 { (character, series) ->
                                     characterSeries.add(CharacterSeries(character, series))
-                                    Log.d("NGVL", "Loading page: $requestedPage")
+                                   // Log.d("NGVL", "Loading page: $requestedPage")
                                     initialCallback?.onResult(characterSeries, null, adjacentPage)
                                     callback?.onResult(characterSeries, adjacentPage)
                                 },
@@ -66,15 +70,21 @@ class CharactersDataSource(
         )
     }
 
-
-    class CharactersDataSourceFactory(
-            private val compositeDisposable: CompositeDisposable,
-            private val marvelApi: MarvelApi
-    ) : DataSource.Factory<Int, CharacterSeries>() {
-
-        override fun create(): DataSource<Int, CharacterSeries> {
-            return CharactersDataSource(marvelApi, compositeDisposable)
-        }
+    private fun getFirst(character: Character): Observable<List<Series>>{
+        return Observable.concat(
+                getCache(character.series.collectionURI),
+                marvelApi.allSeries(character.series.collectionURI).map { s -> s.data.results }
+                        .doOnNext { series -> seriesURICache[character.series.collectionURI] = series }
+        ).first(emptyList()).toObservable()
     }
 
+    private fun getCache(seriesURI: String): Observable<List<Series>>? {
+        return Observable.fromIterable(seriesURICache.keys)
+                .filter { key ->
+                    key == seriesURI
+                }
+                .map { key ->
+                    seriesURICache[key]!!
+                }
+    }
 }

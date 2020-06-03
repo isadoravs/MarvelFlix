@@ -47,13 +47,12 @@ class SeriesActivity : AppCompatActivity() {
         series?.let { movieDetail ->
             text_view_title.text = movieDetail.title
             text_view_desc.text = movieDetail.description
-            text_view_cast.text = getString(R.string.cast, movieDetail.description)
 
             recycler_view_similar.adapter = adapter
             recycler_view_similar.layoutManager = GridLayoutManager(this, 3)
 
             Glide.with(this@SeriesActivity)
-                    .load(movieDetail.thumbnail.path + "/landscape_medium." + series.thumbnail.extension)
+                    .load(movieDetail.thumbnail.path + "/landscape_xlarge." + series.thumbnail.extension)
                     .listener(object : RequestListener<Drawable> {
                         override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
                             return true
@@ -68,14 +67,19 @@ class SeriesActivity : AppCompatActivity() {
                             return true
                         }
                     }).into(image_view_cover)
-            val characters: MutableList<Character> = arrayListOf()
-            viewModel.loadCharacters(movieDetail.characters.collectionURI)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe ({ response ->
-                        adapter.characters = response
-                    }, {error -> println(error)})
+
+            loadCharacters(movieDetail.characters.collectionURI)
+
         }
+    }
+
+    private fun loadCharacters(collectionURI: String){
+        val disposable = viewModel.loadCharacters(collectionURI)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe ({ response ->
+                    adapter.characters = response
+                }, {error -> println(error)})
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

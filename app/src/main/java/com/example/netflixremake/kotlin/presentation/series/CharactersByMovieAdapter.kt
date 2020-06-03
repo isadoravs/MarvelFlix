@@ -1,17 +1,11 @@
 package com.example.netflixremake.kotlin.presentation.series
 
-import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.paging.PagedListAdapter
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.netflixremake.R
-import com.example.netflixremake.kotlin.data.model.Movie
-import com.example.netflixremake.kotlin.data.model.Series
-import com.example.netflixremake.kotlin.presentation.characters.SeriesByCharacterAdapter
 import kotlinx.android.synthetic.main.movie_item_similar.view.*
 import com.example.netflixremake.kotlin.data.model.Character
 
@@ -34,9 +28,8 @@ class CharactersByMovieAdapter() : RecyclerView.Adapter<CharactersByMovieAdapter
     inner class CharactersHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(character: Character) {
             with(itemView) {
-                println(character.thumbnail)
                 character.let {
-                    Glide.with(context).load(it.thumbnail.path + "portrait_small." + it.thumbnail.extension).placeholder(R.drawable.placaholder_bg).into(image_view_similar)
+                    Glide.with(context).load(it.thumbnail.path + "/portrait_medium." + it.thumbnail.extension).placeholder(R.drawable.placaholder_bg).into(image_view_similar)
                 }
             }
         }
