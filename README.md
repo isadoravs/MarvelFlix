@@ -2,7 +2,7 @@
 
 App desenvolvido baseado no layout da Netflix com API da Marvel.
 
-Para rodar o app é preciso colocar as chaves da api no **local.properties** da sequinte forma:
+Para rodar o app é preciso colocar as chaves da api no **local.properties** da seguinte forma:
 
 >marvel.key.private=YOUR_API_KEY
 
